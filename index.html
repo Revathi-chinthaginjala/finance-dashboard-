@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finance Dashboard UI</title>
+    <meta
+      name="description"
+      content="A responsive finance dashboard with charts, role-based controls, filters, and insights."
+    />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="app.js">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Personal Finance Cockpit</p>
+          <h1>Track the story behind every dollar.</h1>
+          <p class="hero-text">
+            Explore balance trends, spending behavior, and transaction activity
+            through a clean dashboard that also simulates viewer and admin roles
+            on the frontend.
+          </p>
+          <div class="hero-note">
+            <span class="status-dot"></span>
+            <span>Mock data only. Overview charts use full account history.</span>
+          </div>
+        </div>
+
+        <div class="hero-controls">
+          <label class="control-field">
+            <span>Role</span>
+            <select id="roleSelect" aria-label="Select role">
+              <option value="viewer">Viewer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+
+          <button class="ghost-button" id="themeToggle" type="button">
+            Toggle Theme
+          </button>
+          <button class="ghost-button" id="exportButton" type="button">
+            Export JSON
+          </button>
+          <button class="ghost-button" id="resetButton" type="button">
+            Reset Demo Data
+          </button>
+        </div>
+      </header>
+
+      <main class="dashboard-grid">
+        <section class="panel summary-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h2>Financial Summary</h2>
+            </div>
+          </div>
+
+          <div class="summary-grid" id="summaryCards"></div>
+        </section>
+
+        <section class="panel trend-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Trend</p>
+              <h2>Balance Trend</h2>
+            </div>
+            <p class="section-caption" id="trendMeta"></p>
+          </div>
+
+          <div id="trendChart" class="chart-surface"></div>
+        </section>
+
+        <section class="panel breakdown-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Spending</p>
+              <h2>Category Breakdown</h2>
+            </div>
+            <p class="section-caption">Click a category to filter the table.</p>
+          </div>
+
+          <div id="breakdownChart" class="breakdown-layout"></div>
+        </section>
+
+        <section class="panel insights-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Insights</p>
+              <h2>What Stands Out</h2>
+            </div>
+            <p class="section-caption">These cards react to the current transaction view.</p>
+          </div>
+
+          <div class="insights-grid" id="insightsCards"></div>
+        </section>
+
+        <section class="panel transactions-panel">
+          <div class="section-heading transactions-heading">
+            <div>
+              <p class="eyebrow">Ledger</p>
+              <h2>Transactions</h2>
+              <p class="section-caption" id="transactionMeta"></p>
+            </div>
+
+            <button class="primary-button" id="addTransactionButton" type="button">
+              Add Transaction
+            </button>
+          </div>
+
+          <div class="filters-grid">
+            <label class="control-field control-grow">
+              <span>Search</span>
+              <input
+                id="searchInput"
+                type="search"
+                placeholder="Search title, category, or type"
+              />
+            </label>
+
+            <label class="control-field">
+              <span>Type</span>
+              <select id="typeFilter">
+                <option value="all">All</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </label>
+
+            <label class="control-field">
+              <span>Category</span>
+              <select id="categoryFilter">
+                <option value="all">All categories</option>
+              </select>
+            </label>
+
+            <label class="control-field">
+              <span>Month</span>
+              <select id="monthFilter">
+                <option value="all">All months</option>
+              </select>
+            </label>
+
+            <label class="control-field">
+              <span>Sort</span>
+              <select id="sortFilter">
+                <option value="date-desc">Newest first</option>
+                <option value="date-asc">Oldest first</option>
+                <option value="amount-desc">Highest amount</option>
+                <option value="amount-asc">Lowest amount</option>
+              </select>
+            </label>
+
+            <button class="ghost-button" id="clearFiltersButton" type="button">
+              Clear Filters
+            </button>
+          </div>
+
+          <div class="applied-filters" id="appliedFilters"></div>
+          <div class="role-banner" id="roleBanner"></div>
+
+          <div class="table-shell" id="tableShell">
+            <table class="transactions-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Details</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th class="align-right">Amount</th>
+                  <th class="align-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactionsBody"></tbody>
+            </table>
+          </div>
+
+          <div class="empty-state hidden" id="emptyState">
+            <h3>No transactions match this view.</h3>
+            <p>Try clearing one or more filters, or add a new transaction as admin.</p>
+            <button class="ghost-button" id="emptyStateReset" type="button">
+              Reset Filters
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-overlay hidden" id="transactionModal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="section-heading modal-heading">
+          <div>
+            <p class="eyebrow">Admin Workspace</p>
+            <h2 id="modalTitle">Add Transaction</h2>
+          </div>
+          <button class="icon-button" id="closeModalButton" type="button" aria-label="Close modal">
+            ×
+          </button>
+        </div>
+
+        <form id="transactionForm" class="modal-form">
+          <input id="transactionId" type="hidden" />
+
+          <label class="control-field control-grow">
+            <span>Title</span>
+            <input id="titleInput" type="text" placeholder="Salary deposit" required />
+          </label>
+
+          <div class="modal-grid">
+            <label class="control-field">
+              <span>Date</span>
+              <input id="dateInput" type="date" required />
+            </label>
+
+            <label class="control-field">
+              <span>Amount</span>
+              <input id="amountInput" type="number" step="0.01" min="0.01" required />
+            </label>
+          </div>
+
+          <div class="modal-grid">
+            <label class="control-field">
+              <span>Category</span>
+              <input id="categoryInput" type="text" placeholder="Groceries" required />
+            </label>
+
+            <label class="control-field">
+              <span>Type</span>
+              <select id="typeInput" required>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="control-field control-grow">
+            <span>Account / Note</span>
+            <input id="accountInput" type="text" placeholder="Main checking" required />
+          </label>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelModalButton" type="button">
+              Cancel
+            </button>
+            <button class="primary-button" type="submit">Save Transaction</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
